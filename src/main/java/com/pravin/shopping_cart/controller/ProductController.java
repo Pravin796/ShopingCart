@@ -5,10 +5,7 @@ import com.pravin.shopping_cart.entities.Product;
 import com.pravin.shopping_cart.mappers.ProductMapperUtil;
 import com.pravin.shopping_cart.repositories.ProductRepository;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -21,14 +18,15 @@ public class ProductController {
 
     @GetMapping
     public List<ProductDto> getAllProducts(
+            @RequestHeader(required = false, value = "x-auth-token") String authToken,
             @RequestParam(name = "categoryId", required = false) Byte categoryId
     ){
-//        if(categoryId )
+        System.out.println(authToken);
         List<Product> products;
         if(categoryId != null){
-            products = productRepository.findByCategoryId(categoryId);
+            products = productRepository.findByCategory_Id(categoryId);
         }else{
-            products = productRepository.findAll();
+            products = productRepository.findAllWithCategeory();
         }
        return  products.stream().map(ProductMapperUtil::toDto).toList();
     }
