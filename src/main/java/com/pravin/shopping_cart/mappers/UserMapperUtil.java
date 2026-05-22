@@ -18,7 +18,18 @@ public class UserMapperUtil {
                 .build();
     }
 
-    public static UserDto toEntity(RegisterUserRequest userDto){
+    public static User toEntity(RegisterUserRequest request) {
 
+        if (request == null) {
+            return null;
+        }
+
+        return User.builder()
+                .name(request.getName())
+                .email(request.getEmail())
+                .password(request.getPassword())
+                .build();
     }
+
+
 }

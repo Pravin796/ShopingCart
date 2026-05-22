@@ -1,14 +1,19 @@
 package com.pravin.shopping_cart.controller;
 
 
+import com.pravin.shopping_cart.dto.RegisterUserRequest;
+import com.pravin.shopping_cart.dto.UpdateUserRequest;
 import com.pravin.shopping_cart.dto.UserDto;
 import com.pravin.shopping_cart.entities.User;
+import com.pravin.shopping_cart.mappers.UserMapper;
 import com.pravin.shopping_cart.mappers.UserMapperUtil;
 import com.pravin.shopping_cart.repositories.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.util.UriBuilder;
+import org.springframework.web.util.UriComponentsBuilder;
 
 import java.util.Set;
 
@@ -19,6 +24,7 @@ import java.util.Set;
 public class UserController {
 
     private final UserRepository userRepository;
+    private final UserMapper userMapper;
 
     @GetMapping
     public Iterable<UserDto> getAllUser(
@@ -36,7 +42,8 @@ public class UserController {
        return userRepository.findAll(Sort.by(sort))
                .stream()
 //               .map((User user) -> new UserDto(user.getId(), user.getName(), user.getEmail()))
-               .map(UserMapperUtil::toDto)
+//               .map(UserMapperUtil::toDto)
+               .map(userMapper::toDto)
                .toList();
     }
 
@@ -51,11 +58,45 @@ public class UserController {
 
 //        var userDto = new UserDto(user.getId(), user.getName(), user.getEmail());
 //        return ResponseEntity.ok(userDto);
-        return ResponseEntity.ok(UserMapperUtil.toDto(user));
+        return ResponseEntity.ok(userMapper.toDto(user));
     }
 
     @PostMapping
-    public UserDto createUser(@RequestBody UserDto data){
-        return data;
+    public ResponseEntity<UserDto> createUser(
+            @RequestBody RegisterUserRequest request,
+            UriComponentsBuilder uriBuilder
+    ){
+        var user = userMapper.toEntity(request);
+        userRepository.save(user);
+
+        var userDto = userMapper.toDto(user);
+        var uri = uriBuilder.path("/users/{id}").buildAndExpand(userDto.getId()).toUri();
+
+        return ResponseEntity.created(uri).body(userDto);
     }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<UserDto> updateUser(
+            @PathVariable(name = "id") Long id,
+            @RequestBody UpdateUserRequest request
+            ){
+        var user = userRepository.findById(id).orElse(null);
+        if(user == null) return ResponseEntity.notFound().build();
+
+        userMapper.update(request, user);
+        userRepository.save(user);
+
+        return ResponseEntity.ok(userMapper.toDto(user));
+
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteUser(@PathVariable Long id){
+        var user = userRepository.findById(id).orElse(null);
+        if(user == null) return ResponseEntity.notFound().build();
+
+        userRepository.delete(user);
+        return ResponseEntity.noContent().build();
+    }
+
 }

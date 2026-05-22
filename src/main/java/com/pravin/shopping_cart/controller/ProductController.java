@@ -2,6 +2,7 @@ package com.pravin.shopping_cart.controller;
 
 import com.pravin.shopping_cart.dto.ProductDto;
 import com.pravin.shopping_cart.entities.Product;
+import com.pravin.shopping_cart.mappers.ProductMapper;
 import com.pravin.shopping_cart.mappers.ProductMapperUtil;
 import com.pravin.shopping_cart.repositories.ProductRepository;
 import lombok.AllArgsConstructor;
@@ -14,7 +15,7 @@ import java.util.List;
 @RequestMapping("/products")
 public class ProductController {
     private final ProductRepository productRepository;
-//    private final ProductMapperUtil productMapperUtil;
+    private final ProductMapper productMapper;
 
     @GetMapping
     public List<ProductDto> getAllProducts(
@@ -28,6 +29,6 @@ public class ProductController {
         }else{
             products = productRepository.findAllWithCategeory();
         }
-       return  products.stream().map(ProductMapperUtil::toDto).toList();
+       return  products.stream().map(productMapper::toDto).toList();
     }
 }

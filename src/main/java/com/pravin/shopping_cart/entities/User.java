@@ -65,6 +65,7 @@ public class User {
         return getClass().getSimpleName() + "(" +
                 "id = " + id + ", " +
                 "name = " + name + ", " +
+                "passowrd = " + password + ", " +
                 "email = " + email + ")";
     }
 }
