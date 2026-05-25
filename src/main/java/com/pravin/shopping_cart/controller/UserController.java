@@ -1,6 +1,7 @@
 package com.pravin.shopping_cart.controller;
 
 
+import com.pravin.shopping_cart.dto.ChangePasswordDto;
 import com.pravin.shopping_cart.dto.RegisterUserRequest;
 import com.pravin.shopping_cart.dto.UpdateUserRequest;
 import com.pravin.shopping_cart.dto.UserDto;
@@ -8,13 +9,19 @@ import com.pravin.shopping_cart.entities.User;
 import com.pravin.shopping_cart.mappers.UserMapper;
 import com.pravin.shopping_cart.mappers.UserMapperUtil;
 import com.pravin.shopping_cart.repositories.UserRepository;
+import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.View;
 import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 
 
@@ -25,6 +32,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
+    private final View error;
 
     @GetMapping
     public Iterable<UserDto> getAllUser(
@@ -63,7 +71,7 @@ public class UserController {
 
     @PostMapping
     public ResponseEntity<UserDto> createUser(
-            @RequestBody RegisterUserRequest request,
+            @Valid @RequestBody RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
     ){
         var user = userMapper.toEntity(request);
@@ -98,5 +106,25 @@ public class UserController {
         userRepository.delete(user);
         return ResponseEntity.noContent().build();
     }
+
+    @PostMapping("/{id}/change-passowrd")
+    public ResponseEntity<Void> changePassword(
+            @PathVariable Long id,
+            @RequestBody ChangePasswordDto request
+    ){
+        var user = userRepository.findById(id).orElse(null);
+        if(user == null) return ResponseEntity.notFound().build();
+
+        if(!user.getPassword().equals(request.getOldPassword())){
+            return new ResponseEntity<>(HttpStatus.UNAUTHORIZED);
+        }
+
+        user.setPassword(request.getNewPassword());
+        userRepository.save(user);
+
+        return ResponseEntity.noContent().build();
+    }
+
+
 
 }
