@@ -13,7 +13,7 @@ public class HomeController {
     public String hompage(Model modal){
         modal.addAttribute("name", "Pravin");
 
-        return "index";
+        return "Hello Pravin";
     }
 
     @RequestMapping("/home")
