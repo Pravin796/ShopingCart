@@ -7,20 +7,17 @@ import com.pravin.shopping_cart.dto.UpdateUserRequest;
 import com.pravin.shopping_cart.dto.UserDto;
 import com.pravin.shopping_cart.entities.User;
 import com.pravin.shopping_cart.mappers.UserMapper;
-import com.pravin.shopping_cart.mappers.UserMapperUtil;
 import com.pravin.shopping_cart.repositories.UserRepository;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.View;
-import org.springframework.web.util.UriBuilder;
 import org.springframework.web.util.UriComponentsBuilder;
 
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -32,7 +29,7 @@ public class UserController {
 
     private final UserRepository userRepository;
     private final UserMapper userMapper;
-    private final View error;
+    private final PasswordEncoder passwordEncoder;
 
     @GetMapping
     public Iterable<UserDto> getAllUser(
@@ -70,11 +67,18 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<UserDto> createUser(
+    public ResponseEntity<?> registerUser(
             @Valid @RequestBody RegisterUserRequest request,
             UriComponentsBuilder uriBuilder
     ){
+        if(userRepository.existsByEmail(request.getEmail())){
+            return ResponseEntity.badRequest().body(
+                    Map.of("email", "Email is already register")
+            );
+        }
+
         var user = userMapper.toEntity(request);
+        user.setPassword(passwordEncoder.encode(user.getPassword()));
         userRepository.save(user);
 
         var userDto = userMapper.toDto(user);
@@ -124,7 +128,5 @@ public class UserController {
 
         return ResponseEntity.noContent().build();
     }
-
-
 
 }
