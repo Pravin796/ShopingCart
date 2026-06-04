@@ -1,8 +1,10 @@
 package com.pravin.shopping_cart.controller;
 
 import com.pravin.shopping_cart.dto.LoginRequest;
+import com.pravin.shopping_cart.dtos.JwtResponse;
 import com.pravin.shopping_cart.entities.User;
 import com.pravin.shopping_cart.repositories.UserRepository;
+import com.pravin.shopping_cart.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.data.repository.Repository;
@@ -21,9 +23,10 @@ public class AuthController {
 //    private final UserRepository userRepository;
 //    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
+    private final JwtService jwtService;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(
+    public ResponseEntity<JwtResponse> login(
             @Valid @RequestBody LoginRequest request
     ){
 //        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
@@ -38,7 +41,9 @@ public class AuthController {
                 request.getEmail(),
                 request.getPassword()
         ));
-        return ResponseEntity.ok().build();
+
+        var token = jwtService.generateToken(request.getEmail());
+        return ResponseEntity.ok(new JwtResponse(token));
 
     }
 

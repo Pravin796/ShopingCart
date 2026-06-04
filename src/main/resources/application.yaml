@@ -1,4 +1,6 @@
 spring:
+  jwt:
+    secret: 0de925ff4bae8473d6c54a38abb6dfe785b0be26e9e6591b46d8d371c6fd23cd
   application:
     name: store
   datasource:
