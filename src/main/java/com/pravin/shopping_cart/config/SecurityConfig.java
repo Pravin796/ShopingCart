@@ -1,7 +1,6 @@
 package com.pravin.shopping_cart.config;
 
 import lombok.AllArgsConstructor;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -61,6 +60,7 @@ public class SecurityConfig {
                         .requestMatchers("/carts/**").permitAll()
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/auth/validate").permitAll()
                         .anyRequest().authenticated()
                 );
         return http.build();

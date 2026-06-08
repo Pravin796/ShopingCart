@@ -1,4 +1,4 @@
-package com.pravin.shopping_cart.dtos;
+package com.pravin.shopping_cart.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Data;

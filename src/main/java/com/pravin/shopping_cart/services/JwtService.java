@@ -1,7 +1,9 @@
 package com.pravin.shopping_cart.services;
 
+import io.jsonwebtoken.JwtException;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
+import jakarta.annotation.PostConstruct;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
@@ -12,6 +14,11 @@ public class JwtService {
     @Value("${spring.jwt.secret}")
     private String secret;
 
+//    @PostConstruct
+//    public void init() {
+//        System.out.println("JWT Secret = " + secret);
+//    }
+
     public String generateToken(String email){
         final long tokenExpiration = 86400; //day
         return Jwts.builder()
@@ -20,5 +27,19 @@ public class JwtService {
                 .expiration(new Date(System.currentTimeMillis() + 1000 * tokenExpiration))
                 .signWith(Keys.hmacShaKeyFor(secret.getBytes()))
                 .compact();
+    }
+
+    public boolean validateToken(String token){
+        try{
+            var claims = Jwts.parser()
+                    .verifyWith(Keys.hmacShaKeyFor(secret.getBytes()))
+                    .build()
+                    .parseSignedClaims(token)
+                    .getPayload();
+
+            return claims.getExpiration().after(new Date());
+        }catch (JwtException ex){
+            return false;
+        }
     }
 }

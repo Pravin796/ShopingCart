@@ -1,19 +1,15 @@
 package com.pravin.shopping_cart.controller;
 
 import com.pravin.shopping_cart.dto.LoginRequest;
-import com.pravin.shopping_cart.dtos.JwtResponse;
-import com.pravin.shopping_cart.entities.User;
-import com.pravin.shopping_cart.repositories.UserRepository;
+import com.pravin.shopping_cart.dto.JwtResponse;
 import com.pravin.shopping_cart.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
-import org.springframework.data.repository.Repository;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
 @AllArgsConstructor
@@ -45,6 +41,13 @@ public class AuthController {
         var token = jwtService.generateToken(request.getEmail());
         return ResponseEntity.ok(new JwtResponse(token));
 
+    }
+
+    @PostMapping("/validate")
+    public boolean validate(@RequestHeader("Authorization") String authHeader){
+        System.out.println("Validate called");
+        var token = authHeader.replace("Bearer ", "");
+        return jwtService.validateToken(token);
     }
 
     @ExceptionHandler(BadCredentialsException.class)
