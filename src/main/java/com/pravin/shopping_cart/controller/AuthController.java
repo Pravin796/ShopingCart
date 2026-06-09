@@ -2,6 +2,7 @@ package com.pravin.shopping_cart.controller;
 
 import com.pravin.shopping_cart.dto.LoginRequest;
 import com.pravin.shopping_cart.dto.JwtResponse;
+import com.pravin.shopping_cart.dto.UserDto;
 import com.pravin.shopping_cart.services.JwtService;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
@@ -42,6 +43,11 @@ public class AuthController {
         return ResponseEntity.ok(new JwtResponse(token));
 
     }
+
+//    @GetMapping("/me")
+//    public ResponseEntity<UserDto> me(){
+//        SecurityCotextH
+//    }
 
     @PostMapping("/validate")
     public boolean validate(@RequestHeader("Authorization") String authHeader){
