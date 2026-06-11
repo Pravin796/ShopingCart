@@ -1,11 +1,14 @@
 package com.pravin.shopping_cart.controller;
 
+import com.pravin.shopping_cart.config.JwtConfig;
 import com.pravin.shopping_cart.dto.LoginRequest;
 import com.pravin.shopping_cart.dto.JwtResponse;
 import com.pravin.shopping_cart.dto.UserDto;
 import com.pravin.shopping_cart.mappers.UserMapper;
 import com.pravin.shopping_cart.repositories.UserRepository;
 import com.pravin.shopping_cart.services.JwtService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -24,12 +27,14 @@ public class AuthController {
 //    private final PasswordEncoder passwordEncoder;
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
+    private final JwtConfig jwtConfig;
     private final UserRepository userRepository;
     private final UserMapper userMapper;
 
     @PostMapping("/login")
     public ResponseEntity<JwtResponse> login(
-            @Valid @RequestBody LoginRequest request
+            @Valid @RequestBody LoginRequest request,
+            HttpServletResponse response
     ){
 //        var user = userRepository.findByEmail(request.getEmail()).orElse(null);
 //        if(user == null){
@@ -45,10 +50,17 @@ public class AuthController {
         ));
 
         var user = userRepository.findByEmail(request.getEmail()).orElseThrow();
-        var token = jwtService.generateToken(user);
+        var accessToken = jwtService.generateAccessToken(user);
+        var refreshToken = jwtService.generateRefreshToken(user);
 
-        return ResponseEntity.ok(new JwtResponse(token));
+        var cookie = new Cookie("refreshToken", refreshToken);
+        cookie.setHttpOnly(true);
+        cookie.setPath("/auth/refresh");
+        cookie.setMaxAge(jwtConfig.getRefreshTokenExpiration()); // 7d
+        cookie.setSecure(true);
 
+        response.addCookie(cookie);
+        return ResponseEntity.ok(new JwtResponse(accessToken));
     }
 
     @GetMapping("/me")
