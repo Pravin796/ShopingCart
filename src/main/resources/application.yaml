@@ -1,7 +1,8 @@
 spring:
   jwt:
     secret: ${JWT_SECRET}
-    accessTokenExpiration: 604800
+    accessTokenExpiration: 300
+    refreshTokenExpiration: 604800
   application:
     name: store
   datasource:
