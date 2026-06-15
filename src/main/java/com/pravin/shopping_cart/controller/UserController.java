@@ -5,6 +5,7 @@ import com.pravin.shopping_cart.dto.ChangePasswordDto;
 import com.pravin.shopping_cart.dto.RegisterUserRequest;
 import com.pravin.shopping_cart.dto.UpdateUserRequest;
 import com.pravin.shopping_cart.dto.UserDto;
+import com.pravin.shopping_cart.entities.Role;
 import com.pravin.shopping_cart.entities.User;
 import com.pravin.shopping_cart.mappers.UserMapper;
 import com.pravin.shopping_cart.repositories.UserRepository;
@@ -79,6 +80,7 @@ public class UserController {
 
         var user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+        user.setRole(Role.USER);
         userRepository.save(user);
 
         var userDto = userMapper.toDto(user);

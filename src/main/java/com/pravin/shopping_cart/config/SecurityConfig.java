@@ -1,5 +1,6 @@
 package com.pravin.shopping_cart.config;
 
+import com.pravin.shopping_cart.entities.Role;
 import com.pravin.shopping_cart.filters.JwtAuthenticationFilter;
 import lombok.AllArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -63,15 +64,24 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(c -> c
                         .requestMatchers("/carts/**").permitAll()
+                        .requestMatchers("/admin/**").hasRole(Role.ADMIN.name())
                         .requestMatchers(HttpMethod.POST, "/users").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/login").permitAll()
-//                      .requestMatchers(HttpMethod.POST, "/auth/validate").permitAll()
                         .requestMatchers(HttpMethod.POST, "/auth/refresh").permitAll()
                         .anyRequest().authenticated()
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
-                .exceptionHandling(c -> c.authenticationEntryPoint(
-                        new HttpStatusEntryPoint(HttpStatus.UNAUTHORIZED)));
+                .exceptionHandling(c -> {
+                    c.authenticationEntryPoint((req, res, ex) -> {
+                        System.out.println("401 handler called");
+                        res.setStatus(HttpStatus.UNAUTHORIZED.value());
+                    });
+
+                    c.accessDeniedHandler((req, res, ex) -> {
+                        System.out.println("403 handler called");
+                        res.setStatus(HttpStatus.FORBIDDEN.value());
+                    });
+                });
 
         return http.build();
     }
