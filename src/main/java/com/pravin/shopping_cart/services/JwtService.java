@@ -37,9 +37,9 @@ public class JwtService {
                 .subject(user.getId().toString())
                 .add("email", user.getEmail())
                 .add("name", user.getName())
-                .add("Role", user.getRole())
+                .add("role", user.getRole())
                 .issuedAt(new Date())
-                .expiration(new Date(System.currentTimeMillis() + 1000 + tokenExpiration))
+                .expiration(new Date(System.currentTimeMillis() + (tokenExpiration * 1000)))
                 .build();
 
         return new Jwt(claims, jwtConfig.getSecretKey());

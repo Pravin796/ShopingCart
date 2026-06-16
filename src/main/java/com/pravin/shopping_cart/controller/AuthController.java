@@ -65,7 +65,9 @@ public class AuthController {
 
     @GetMapping("/me")
     public ResponseEntity<UserDto> me(){
+//        System.out.println("me api called");
         var authentication =  SecurityContextHolder.getContext().getAuthentication();
+//        System.out.println(authentication);
         var userId = (Long) authentication.getPrincipal();
 
         var user = userRepository.findById(userId).orElse(null);
