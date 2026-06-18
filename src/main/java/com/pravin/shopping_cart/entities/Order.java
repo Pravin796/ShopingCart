@@ -49,6 +49,8 @@ public class Order {
             var orderItem = new OrderItem(order, items.getProduct(), items.getQuantity());
             order.Items.add(orderItem);
         });
+
+        return order;
     }
 
 }
