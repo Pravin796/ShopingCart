@@ -9,4 +9,8 @@ import java.util.UUID;
 public class CheckoutRequest {
     @NotNull(message = "Cart id required")
     private UUID cartId;
+
+    public UUID getCartId() {
+        return cartId;
+    }
 }
