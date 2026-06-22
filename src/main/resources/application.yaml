@@ -15,3 +15,6 @@ spring:
     show-sql: true
     hibernate:
       ddl-auto: validate
+stipe:
+  secretKey: ${STRIPE_SECRET_KEY}
+websiteUrl: http://localhost:5173

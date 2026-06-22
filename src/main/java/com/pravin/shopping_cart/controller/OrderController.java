@@ -1,14 +1,14 @@
 package com.pravin.shopping_cart.controller;
 
+import com.pravin.shopping_cart.dto.ErrorDto;
 import com.pravin.shopping_cart.dto.OrderDto;
-import com.pravin.shopping_cart.mappers.OrderMapper;
-import com.pravin.shopping_cart.repositories.OrderRepository;
-import com.pravin.shopping_cart.services.AuthService;
+import com.pravin.shopping_cart.exceptions.OrderNotFountException;
 import com.pravin.shopping_cart.services.OrderService;
 import lombok.AllArgsConstructor;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
@@ -23,4 +23,20 @@ public class OrderController {
         return orderService.getAllOrders();
     }
 
+    @GetMapping("/{orderId}")
+    public OrderDto getOrder(@PathVariable("orderId") Long orderId){
+       return orderService.getOrder(orderId);
+    }
+
+    @ExceptionHandler(OrderNotFountException.class)
+    public ResponseEntity<Void> handelOrderNotFound(){
+        return ResponseEntity.notFound().build();
+    }
+
+    @ExceptionHandler(AccessDeniedException.class)
+    public ResponseEntity<ErrorDto> handleAccessDenied(Exception ex){
+        return ResponseEntity
+                .status(HttpStatus.FORBIDDEN)
+                .body(new ErrorDto(ex.getMessage()));
+    }
 }

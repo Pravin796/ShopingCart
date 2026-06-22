@@ -145,6 +145,11 @@
         <artifactId>spring-dotenv</artifactId>
         <version>4.0.0</version>
     </dependency>
+        <dependency>
+            <groupId>com.stripe</groupId>
+            <artifactId>stripe-java</artifactId>
+            <version>30.0.0</version>
+        </dependency>
 
     </dependencies>
 
