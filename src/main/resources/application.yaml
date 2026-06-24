@@ -1,6 +1,6 @@
 stripe:
   secretKey: ${STRIPE_SECRET_KEY}
-
+  webhooksecretKey: ${STRIPE_WEBHOOK_SECRET_KEY}
 spring:
   jwt:
     secret: ${JWT_SECRET}
