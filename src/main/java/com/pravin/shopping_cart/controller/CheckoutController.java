@@ -12,8 +12,10 @@ import com.pravin.shopping_cart.repositories.CartRepository;
 import com.pravin.shopping_cart.services.AuthService;
 import com.pravin.shopping_cart.services.CartService;
 import com.pravin.shopping_cart.services.CheckOutService;
+import com.stripe.exception.StripeException;
 import jakarta.validation.Valid;
 import lombok.AllArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,10 +28,16 @@ public class CheckoutController {
     private final CheckOutService checkOutService;
 
     @PostMapping
-    public CheckoutResponse checkout(
+    public ResponseEntity<?> checkout(
             @Valid @RequestBody CheckoutRequest request
     ){
-        return checkOutService.checkout(request);
+        try{
+            return ResponseEntity.ok(checkOutService.checkout(request));
+        }catch (StripeException ex){
+            return ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(new ErrorDto("Error creating a checkout session"));
+        }
     }
 
     @ExceptionHandler({CartNotFoundException.class, CartEmptyException.class})
