@@ -3,37 +3,31 @@ package com.pravin.shopping_cart.controller;
 import com.pravin.shopping_cart.dto.CheckoutRequest;
 import com.pravin.shopping_cart.dto.CheckoutResponse;
 import com.pravin.shopping_cart.dto.ErrorDto;
-import com.pravin.shopping_cart.entities.Order;
-import com.pravin.shopping_cart.entities.OrderItem;
 import com.pravin.shopping_cart.entities.OrderStatus;
 import com.pravin.shopping_cart.exceptions.CartEmptyException;
 import com.pravin.shopping_cart.exceptions.CartNotFoundException;
 import com.pravin.shopping_cart.exceptions.PaymentException;
-import com.pravin.shopping_cart.repositories.CartRepository;
-import com.pravin.shopping_cart.services.AuthService;
-import com.pravin.shopping_cart.services.CartService;
+import com.pravin.shopping_cart.repositories.OrderRepository;
 import com.pravin.shopping_cart.services.CheckOutService;
 import com.stripe.exception.SignatureVerificationException;
-import com.stripe.exception.StripeException;
+import com.stripe.model.PaymentIntent;
 import com.stripe.net.Webhook;
 import jakarta.validation.Valid;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.Map;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/checkout")
 public class CheckoutController {
     private final CheckOutService checkOutService;
+    private final OrderRepository orderRepository;
 
-    @Value("${stripe.webhookSecretKey}")
+    @Value("${stripe.webhooksecretKey}")
     private String webhookSecretKey;
 
     @PostMapping
@@ -48,6 +42,7 @@ public class CheckoutController {
             @RequestHeader("Stripe-Signature") String signature,
             @RequestBody String payload
     ){
+        System.out.println("Webhook received");
         try {
             var event = Webhook.constructEvent(payload, signature, webhookSecretKey);
             System.out.println(event.getType());
@@ -56,7 +51,13 @@ public class CheckoutController {
 
             switch (event.getType()){
                 case "payment_intent.succeeded" -> {
-
+                    var paymentIntent = (PaymentIntent) stripeObject;
+                    if(paymentIntent != null){
+                        var orderId = paymentIntent.getMetadata().get("order_id");
+                        var order = orderRepository.findById(Long.valueOf(orderId)).orElseThrow();
+                        order.setStatus(OrderStatus.PAID);
+                        orderRepository.save(order);
+                    }
                 }
                 case "payment_intent.failed" -> {
 
@@ -66,7 +67,7 @@ public class CheckoutController {
             return ResponseEntity.ok().build();
 
         } catch (SignatureVerificationException e) {
-            ResponseEntity.badRequest().build();
+            return ResponseEntity.badRequest().build();
         }
     }
 
