@@ -19,6 +19,6 @@ spring:
 #      ddl-auto: validate
 stripe:
   secretKey: ${STRIPE_SECRET_KEY:sk_test_51Tknd6Ll93R4S5ei4pVnOGx2ycGeFEMdEtrhiccVPUGbOxKkeU1lB9TRGpaSoRjHTbySzpvpWIqtiUaCdYyl6GvR0019cCyuyg}
-  webhooksecretKey: ${STRIPE_WEBHOOK_SECRET_KEY:whsec_8772aff8bfabcd67546cda905eb205f02f59494f6a6a4901333280592ad2143b}
+  webhooksecretKey: whsec_8772aff8bfabcd67546cda905eb205f02f59494f6a6a4901333280592ad2143b
 
 #websiteUrl: http://localhost:5173
