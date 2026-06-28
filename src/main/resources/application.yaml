@@ -1,23 +1,24 @@
-stripe:
-  secretKey: ${STRIPE_SECRET_KEY}
-  webhooksecretKey: whsec_8772aff8bfabcd67546cda905eb205f02f59494f6a6a4901333280592ad2143b
 spring:
+  application:
+    name: store
   jwt:
     secret: ${JWT_SECRET}
     accessTokenExpiration: 7200
     refreshTokenExpiration: 604800
-  application:
-    name: store
-  datasource:
-    url: jdbc:mysql://localhost:3306/shopingcart?createDatabaseIfNotExist=true
-    username: root
-    password: Pravin@69
+  profiles:
+    active: dev
+#  datasource:
+#    url: jdbc:mysql://localhost:3306/shopingcart?createDatabaseIfNotExist=true
+#    username: root
+#    password: Pravin@69
   flyway:
     baseline-on-migrate: true
-  jpa:
-    show-sql: true
-    hibernate:
-      ddl-auto: validate
+#  jpa:
+#    show-sql: true
+#    hibernate:
+#      ddl-auto: validate
+stripe:
+  secretKey: ${STRIPE_SECRET_KEY:sk_test_51Tknd6Ll93R4S5ei4pVnOGx2ycGeFEMdEtrhiccVPUGbOxKkeU1lB9TRGpaSoRjHTbySzpvpWIqtiUaCdYyl6GvR0019cCyuyg}
+  webhooksecretKey: ${STRIPE_WEBHOOK_SECRET_KEY:whsec_8772aff8bfabcd67546cda905eb205f02f59494f6a6a4901333280592ad2143b}
 
-
-websiteUrl: http://localhost:5173
+#websiteUrl: http://localhost:5173

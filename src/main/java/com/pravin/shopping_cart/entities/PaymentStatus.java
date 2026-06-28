@@ -1,6 +1,6 @@
 package com.pravin.shopping_cart.entities;
 
-public enum OrderStatus {
+public enum PaymentStatus {
     PENDING,
     PAID,
     FAILED,

@@ -1,4 +1,4 @@
-package com.pravin.shopping_cart.dto;
+package com.pravin.shopping_cart.payments;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;

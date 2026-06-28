@@ -1,17 +1,15 @@
-package com.pravin.shopping_cart.services;
+package com.pravin.shopping_cart.payments;
 
-import com.pravin.shopping_cart.exceptions.PaymentException;
 import com.pravin.shopping_cart.repositories.OrderRepository;
-import com.pravin.shopping_cart.dto.CheckoutRequest;
-import com.pravin.shopping_cart.dto.CheckoutResponse;
 import com.pravin.shopping_cart.entities.Order;
 import com.pravin.shopping_cart.exceptions.CartEmptyException;
 import com.pravin.shopping_cart.exceptions.CartNotFoundException;
 import com.pravin.shopping_cart.repositories.CartRepository;
+import com.pravin.shopping_cart.services.AuthService;
+import com.pravin.shopping_cart.services.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 
 
 @Service
@@ -48,5 +46,17 @@ public class CheckOutService {
             orderRepository.delete(order);
             throw ex;
         }
+    }
+
+    public void handelWebhookEvent(webhookRequest request){
+        paymentGateway
+                .parseWebhookRequest(request)
+                .ifPresent( paymentResult ->{
+                    var order = orderRepository.findById(paymentResult.getOrderId()).orElseThrow();
+                    order.setStatus(paymentResult.getPaymentStatus());
+                    orderRepository.save(order);
+                });
+
+
     }
 }

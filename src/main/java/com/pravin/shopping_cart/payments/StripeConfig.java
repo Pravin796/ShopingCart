@@ -1,4 +1,4 @@
-package com.pravin.shopping_cart.config;
+package com.pravin.shopping_cart.payments;
 
 import com.stripe.Stripe;
 import jakarta.annotation.PostConstruct;

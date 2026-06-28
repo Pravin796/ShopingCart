@@ -1,6 +1,6 @@
 package com.pravin.shopping_cart.dto;
 
-import com.pravin.shopping_cart.entities.OrderStatus;
+import com.pravin.shopping_cart.entities.PaymentStatus;
 import lombok.Data;
 
 import java.math.BigDecimal;
@@ -10,7 +10,7 @@ import java.util.List;
 @Data
 public class OrderDto {
     private Long id;
-    private OrderStatus status;
+    private PaymentStatus status;
     private LocalDateTime createdAt;
     private List<OrderItemDto> items;
     private BigDecimal totalPrice;

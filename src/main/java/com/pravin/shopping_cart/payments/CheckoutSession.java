@@ -1,4 +1,4 @@
-package com.pravin.shopping_cart.services;
+package com.pravin.shopping_cart.payments;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
