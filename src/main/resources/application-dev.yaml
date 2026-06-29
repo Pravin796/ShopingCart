@@ -9,6 +9,6 @@ spring:
       ddl-auto: validate
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8065}
 
 websiteUrl: http://localhost:5173
