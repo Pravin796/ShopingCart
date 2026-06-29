@@ -19,7 +19,7 @@ spring:
 #      ddl-auto: validate
 
 server:
-  port: ${PORT:8080}
+  port: ${PORT:8065}
   
 stripe:
   secretKey: ${STRIPE_SECRET_KEY:sk_test_51Tknd6Ll93R4S5ei4pVnOGx2ycGeFEMdEtrhiccVPUGbOxKkeU1lB9TRGpaSoRjHTbySzpvpWIqtiUaCdYyl6GvR0019cCyuyg}
