@@ -1,12 +1,12 @@
 package com.pravin.shopping_cart.payments;
 
-import com.pravin.shopping_cart.repositories.OrderRepository;
-import com.pravin.shopping_cart.entities.Order;
-import com.pravin.shopping_cart.exceptions.CartEmptyException;
-import com.pravin.shopping_cart.exceptions.CartNotFoundException;
-import com.pravin.shopping_cart.repositories.CartRepository;
-import com.pravin.shopping_cart.services.AuthService;
-import com.pravin.shopping_cart.services.CartService;
+import com.pravin.shopping_cart.Orders.OrderRepository;
+import com.pravin.shopping_cart.Orders.Order;
+import com.pravin.shopping_cart.carts.CartEmptyException;
+import com.pravin.shopping_cart.carts.CartNotFoundException;
+import com.pravin.shopping_cart.carts.CartRepository;
+import com.pravin.shopping_cart.auth.AuthService;
+import com.pravin.shopping_cart.carts.CartService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

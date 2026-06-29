@@ -1,9 +1,9 @@
 package com.pravin.shopping_cart.payments;
 
-import com.pravin.shopping_cart.dto.ErrorDto;
-import com.pravin.shopping_cart.exceptions.CartEmptyException;
-import com.pravin.shopping_cart.exceptions.CartNotFoundException;
-import com.pravin.shopping_cart.repositories.OrderRepository;
+import com.pravin.shopping_cart.common.ErrorDto;
+import com.pravin.shopping_cart.carts.CartEmptyException;
+import com.pravin.shopping_cart.carts.CartNotFoundException;
+import com.pravin.shopping_cart.Orders.OrderRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;

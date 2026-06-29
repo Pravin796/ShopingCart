@@ -1,8 +1,7 @@
 package com.pravin.shopping_cart.payments;
 
-import com.pravin.shopping_cart.entities.Order;
-import com.pravin.shopping_cart.entities.OrderItem;
-import com.pravin.shopping_cart.entities.PaymentStatus;
+import com.pravin.shopping_cart.Orders.Order;
+import com.pravin.shopping_cart.Orders.OrderItem;
 import com.stripe.exception.SignatureVerificationException;
 import com.stripe.exception.StripeException;
 import com.stripe.model.Event;

@@ -1,6 +1,6 @@
 package com.pravin.shopping_cart.payments;
 
-import com.pravin.shopping_cart.entities.Order;
+import com.pravin.shopping_cart.Orders.Order;
 
 import java.util.Optional;
 
