@@ -46,34 +46,84 @@ public class StripePaymentGateway implements PaymentGateway {
         }
     }
 
-    @Override
-    public Optional<PaymentResult> parseWebhookRequest(webhookRequest request) {
-        try {
-            var payload = request.getPayload();
-            var signature = request.getHeaders().get("Stripe-Signature");
-            var event = Webhook.constructEvent(payload, signature, webhookSecretKey);
+//    @Override
+//    public Optional<PaymentResult> parseWebhookRequest(webhookRequest request) {
+//        try {
+//            var payload = request.getPayload();
+//            var signature = request.getHeaders().get("Stripe-Signature");
+//            var event = Webhook.constructEvent(payload, signature, webhookSecretKey);
+//
+//            // Print event type
+//            System.out.println("Event Type = " + event.getType());
+//
+//            return switch (event.getType()){
+//                case "checkout.session.completed" ->
+//                        Optional.of(new PaymentResult(extractOrderId(event), PaymentStatus.PAID));
+//
+//                case "checkout.session.expired" ->
+//                    Optional.of(new PaymentResult(extractOrderId(event), PaymentStatus.FAILED));
+//
+//                default -> Optional.empty();
+//            };
+//
+//        } catch (SignatureVerificationException e) {
+//            throw new PaymentException("Invalid signature");
+//        }
+//    }
+@Override
+public Optional<PaymentResult> parseWebhookRequest(webhookRequest request) {
+    try {
+        var payload = request.getPayload();
+        var signature = request.getHeaders().get("Stripe-Signature");
+        var event = Webhook.constructEvent(payload, signature, webhookSecretKey);
 
-            return switch (event.getType()){
-                case "payment_intent.succeeded" ->
-                        Optional.of(new PaymentResult(extractOrderId(event), PaymentStatus.PAID));
+        // Print event type
+        System.out.println("Event Type = " + event.getType());
 
-                case "payment_intent.payment_failed" ->
-                    Optional.of(new PaymentResult(extractOrderId(event), PaymentStatus.FAILED));
+        // Only for debugging payment_intent events
+        if (event.getType().equals("payment_intent.succeeded")) {
 
-                default -> Optional.empty();
-            };
+            var stripeObject = event.getDataObjectDeserializer()
+                    .getObject()
+                    .orElseThrow();
 
-        } catch (SignatureVerificationException e) {
-            throw new PaymentException("Invalid signature");
+            PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
+
+            System.out.println("Metadata = " + paymentIntent.getMetadata());
+            System.out.println("Order ID = " + paymentIntent.getMetadata().get("order_id"));
         }
+
+        return switch (event.getType()) {
+
+            case "checkout.session.completed" ->
+                    Optional.of(new PaymentResult(
+                            extractOrderIdFromSession(event),
+                            PaymentStatus.PAID));
+
+            default -> Optional.empty();
+        };
+
+    } catch (SignatureVerificationException e) {
+        throw new PaymentException("Invalid signature");
+    }
+}
+
+    private Long extractOrderIdFromSession(Event event) {
+        Session session = (Session) event.getDataObjectDeserializer()
+                .getObject()
+                .orElseThrow(() -> new PaymentException("Cannot deserialize session"));
+
+        System.out.println("Session Metadata = " + session.getMetadata());
+        return Long.valueOf(session.getMetadata().get("order_id"));
     }
 
-    private Long extractOrderId(Event event){
-        var stripeObject = event.getDataObjectDeserializer().getObject().orElseThrow(()-> new PaymentException("Could not deserilize stripe event, check the sdk and api version."));
-
-        var paymentIntent = (PaymentIntent) stripeObject;
-        return Long.valueOf(paymentIntent.getMetadata().get("order_id"));
-    }
+//    private Long extractOrderId(Event event) {
+//        Session session = (Session) event.getDataObjectDeserializer()
+//                .getObject()
+//                .orElseThrow(() ->
+//                        new PaymentException("Cannot deserialize session"));
+//        return Long.valueOf(session.getMetadata().get("order_id"));
+//    }
 
     private SessionCreateParams.LineItem createLineItem(OrderItem items) {
         return SessionCreateParams.LineItem.builder()
@@ -84,7 +134,7 @@ public class StripePaymentGateway implements PaymentGateway {
 
     private SessionCreateParams.LineItem.PriceData createPriceData(OrderItem items) {
         return SessionCreateParams.LineItem.PriceData.builder()
-                .setCurrency("usd")
+                .setCurrency("inr")
                 .setUnitAmountDecimal(items.getUnitPrice().multiply(BigDecimal.valueOf(100)))
                 .setProductData(createProductData(items))
                 .build();
