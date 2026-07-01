@@ -31,6 +31,11 @@ public class StripePaymentGateway implements PaymentGateway {
                     .setMode(SessionCreateParams.Mode.PAYMENT)
                     .setSuccessUrl(websiteUrl + "/checkout-success?orderId=" + order.getId())
                     .setCancelUrl(websiteUrl + "/checkout-cancel")
+                    .setPaymentIntentData(
+                            SessionCreateParams.PaymentIntentData.builder()
+                                    .putMetadata("order_id", order.getId().toString())
+                                    .build()
+                    )
                     .putMetadata("order_id", order.getId().toString());
 
             order.getItems().forEach(items -> {
@@ -80,24 +85,16 @@ public Optional<PaymentResult> parseWebhookRequest(webhookRequest request) {
         // Print event type
         System.out.println("Event Type = " + event.getType());
 
-        // Only for debugging payment_intent events
-        if (event.getType().equals("payment_intent.succeeded")) {
-
-            var stripeObject = event.getDataObjectDeserializer()
-                    .getObject()
-                    .orElseThrow();
-
-            PaymentIntent paymentIntent = (PaymentIntent) stripeObject;
-
-            System.out.println("Metadata = " + paymentIntent.getMetadata());
-            System.out.println("Order ID = " + paymentIntent.getMetadata().get("order_id"));
-        }
-
         return switch (event.getType()) {
 
             case "checkout.session.completed" ->
                     Optional.of(new PaymentResult(
                             extractOrderIdFromSession(event),
+                            PaymentStatus.PAID));
+
+            case "payment_intent.succeeded" ->
+                    Optional.of(new PaymentResult(
+                            extractOrderIdFromPaymentIntent(event),
                             PaymentStatus.PAID));
 
             default -> Optional.empty();
@@ -114,7 +111,24 @@ public Optional<PaymentResult> parseWebhookRequest(webhookRequest request) {
                 .orElseThrow(() -> new PaymentException("Cannot deserialize session"));
 
         System.out.println("Session Metadata = " + session.getMetadata());
-        return Long.valueOf(session.getMetadata().get("order_id"));
+        return extractOrderId(session.getMetadata().get("order_id"));
+    }
+
+    private Long extractOrderIdFromPaymentIntent(Event event) {
+        PaymentIntent paymentIntent = (PaymentIntent) event.getDataObjectDeserializer()
+                .getObject()
+                .orElseThrow(() -> new PaymentException("Cannot deserialize payment intent"));
+
+        System.out.println("PaymentIntent Metadata = " + paymentIntent.getMetadata());
+        return extractOrderId(paymentIntent.getMetadata().get("order_id"));
+    }
+
+    private Long extractOrderId(String orderId) {
+        if (orderId == null || orderId.isBlank()) {
+            throw new PaymentException("Missing order_id metadata");
+        }
+
+        return Long.valueOf(orderId);
     }
 
 //    private Long extractOrderId(Event event) {
